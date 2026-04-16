@@ -85,19 +85,28 @@ def update_data():
                         city_raw = airport_data.get('position', {}).get('region', {}).get('city', 'Unknown')
                         country_raw = airport_data.get('position', {}).get('country', {}).get('name', 'Unknown')
 
-                        # --- [국내선 필터링 최종 보강] ---
-                        # 1. 공항 코드가 현재 국가 리스트에 있으면 무조건 제외 (IATA 기준)
+                        # --- [국내선 필터링 3중 잠금] ---
+                        # 1. 공항 코드 직접 비교 (대소문자 무시)
                         if iata_code.upper() in [c.upper() for c in airport_list.keys()]:
                             continue
+                            
+                        # 2. 도시 이름 직접 비교 (일본/베트남 등 국내 도시 키워드 강제 차단)
+                        # 여기에 있는 단어가 도시 이름에 포함되면 무조건 버립니다.
+                        forbidden_cities = ["OSAKA", "TOKYO", "FUKUOKA", "SAPPORO", "OKINAWA", "NAGOYA", "HIROSHIMA", 
+                                            "HANOI", "HO CHI MINH", "DA NANG", "PHU QUOC", "NHA TRANG"]
+                        if city_raw.strip().upper() in forbidden_cities:
+                            continue
 
-                        # 2. 국가 이름 대소문자 무시하고 비교
-                        eng_countries = {"일본":"JAPAN", "베트남":"VIETNAM", "태국":"THAILAND", "대만":"TAIWAN", "필리핀":"PHILIPPINES", "중국":"CHINA"}
-                        current_country_eng = eng_countries.get(country_name, "").upper()
+                        # 3. 비행기 편명으로 국내선 추측 (일본 국내선 전용 항공사들)
+                        # GK(젯스타 재팬), MM(피치항공) 등 국내선 비중이 높은 경우를 대비
+                        # 하지만 국제선도 있을 수 있으니 1, 2번 필터가 메인입니다.
                         
-                        # API 국가명도 대문자로 변환해서 비교
-                        target_country_upper = country_raw.strip().upper()
+                        # 국가 이름 비교 (공백/대소문자 제거 후 포함 여부로 체크)
+                        eng_countries = {"일본":"JAPAN", "베트남":"VIETNAM", "태국":"THAILAND", "대만":"TAIWAN", "필리핀":"PHILIPPINES", "중국":"CHINA"}
+                        curr_eng = eng_countries.get(country_name, "").upper()
+                        target_ct = country_raw.strip().upper()
 
-                        if target_country_upper == current_country_eng or city_raw in DOMESTIC_CITIES:
+                        if curr_eng in target_ct or target_ct in curr_eng or city_raw in DOMESTIC_CITIES:
                             continue
                         # --------------------------------
 

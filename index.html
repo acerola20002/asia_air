@@ -5,9 +5,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>아시아 실시간 항공 전광판</title>
     <style>
+        /* 기본 배경 및 글꼴 */
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #000; color: white; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
         
+        /* 상단 헤더 */
         header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
         .logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
         .logo-icon { font-size: 2.5rem; }
@@ -16,6 +18,7 @@
         .update-info { color: #aaa; font-size: 1rem; margin-bottom: 8px; }
         .time-notice { color: #ff3333; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
 
+        /* 안내 박스 */
         .info-box { 
             border: 1px solid #333; padding: 20px; border-radius: 4px; 
             font-size: 0.95rem; color: #ccc; margin-bottom: 40px; 
@@ -24,18 +27,33 @@
         .info-box b { color: #fff; }
         .warning-icon { color: #ffcc00; margin-right: 8px; }
 
-        /* 라벨 스타일 (영문/한글 병기) */
-        .group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 10px; font-weight: bold; letter-spacing: 1px; }
+        /* 섹션 라벨 (한글/영문 병기) */
+        .group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
         .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
         
+        /* 일반 선택 버튼 (국가, 공항) */
         button { 
-            padding: 12px 20px; border: none; border-radius: 6px; cursor: pointer; 
-            font-weight: bold; transition: 0.2s; background: #222; color: #888; font-size: 0.95rem;
-            display: flex; align-items: center; gap: 6px;
+            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; transition: 0.2s; background: #222; color: #aaa; font-size: 0.95rem;
         }
-        button.active { background: #007bff; color: white; }
+        button.active { background: #444; color: white; border: 1px solid #555; }
         button:hover { background: #333; color: white; }
 
+        /* [수정] 도착/출발 필터 버튼 디자인 (크고 아름답게!) */
+        .filter-btn {
+            width: 170px; height: 70px; background: #1a1a1a; color: #666; 
+            border: 1px solid #333; display: flex; align-items: center; justify-content: center; gap: 12px;
+        }
+        .filter-btn.active { 
+            background: #ffcc00; color: #000; border-color: #ffcc00;
+            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); 
+        }
+        .filter-btn .btn-icon { font-size: 2.5rem; } /* 비행기 이모지 대폭 확대 */
+        .btn-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
+        .btn-text b { font-size: 1.2rem; line-height: 1; }
+        .btn-text span { font-size: 0.7rem; opacity: 0.7; }
+
+        /* 전광판 카드 및 테이블 */
         .board-card { background: #111; border-radius: 12px; padding: 20px; border: 1px solid #222; }
         h2 { text-align: center; color: #ffcc00; margin-top: 0; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         
@@ -43,13 +61,18 @@
         th { background: #1a1a1a; color: #888; padding: 15px; font-size: 0.85rem; border-bottom: 2px solid #333; }
         td { padding: 15px 10px; border-bottom: 1px solid #222; text-align: center; font-size: 0.95rem; }
         
+        /* 항공 상태 색상 */
         .status-출발완료, .status-도착완료 { color: #555; }
         .status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
         .status-지연 { color: #e74c3c; font-weight: bold; }
         .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; }
 
         @keyframes blink { 50% { opacity: 0.4; } }
-        @media (max-width: 600px) { h1 { font-size: 1.4rem; } .info-box { font-size: 0.8rem; } }
+        @media (max-width: 600px) {
+            h1 { font-size: 1.6rem; }
+            .filter-btn { width: 140px; height: 60px; gap: 8px; }
+            .filter-btn .btn-icon { font-size: 2rem; }
+        }
     </style>
 </head>
 <body>
@@ -66,8 +89,8 @@
 
     <div class="info-box">
         <span class="warning-icon">⚠️</span> 본 전광판은 <b>FlightRadar24</b> 데이터를 기반으로 개인적인 여행 편의를 위해 제작되었습니다.<br>
-        데이터는 1시간 간격으로 자동 업데이트되나 시스템 환경에 따라 차이가 날 수 있습니다.<br>
-        <b>정확한 운항 정보는 반드시 해당 항공사 공식 홈페이지를 확인해 주세요.</b>
+        데이터는 <b>1시간 간격으로 업데이트</b>되며, 데이터 업데이트 간격이 길기 때문에 실시간 제공은 안됩니다.<br>
+        <b>정확한 운항 정보는 반드시 해당 항공사 또는 공항 공식 홈페이지를 확인해 주세요.</b>
     </div>
 
     <span class="group-label">REGION / 국가 선택</span>
@@ -78,8 +101,20 @@
 
     <span class="group-label">FILTER / 출발·도착</span>
     <div class="selector-group">
-        <button id="btn-arr" class="active" onclick="filterType('도착', this)">🛬 도착 ARRIVAL</button>
-        <button id="btn-dep" onclick="filterType('출발', this)">🛫 출발 DEPARTURE</button>
+        <button id="btn-arr" class="filter-btn active" onclick="filterType('도착', this)">
+            <span class="btn-icon">🛬</span>
+            <div class="btn-text">
+                <b>도착</b>
+                <span>ARRIVAL</span>
+            </div>
+        </button>
+        <button id="btn-dep" class="filter-btn" onclick="filterType('출발', this)">
+            <span class="btn-icon">🛫</span>
+            <div class="btn-text">
+                <b>출발</b>
+                <span>DEPARTURE</span>
+            </div>
+        </button>
     </div>
 
     <div class="board-card">
@@ -113,32 +148,30 @@
         "PVG": "상하이", "PEK": "베이징", "TAO": "칭다오", "CAN": "광저우"
     };
 
-    const countryTimeOffsets = {
-        "일본": 9, "베트남": 7, "태국": 7, "대만": 8, "필리핀": 8, "중국": 8
-    };
+    const countryTimeOffsets = { "일본": 9, "베트남": 7, "태국": 7, "대만": 8, "필리핀": 8, "중국": 8 };
 
     let currentCountry = "";
     let currentAirport = "";
-    let currentType = "도착"; // 기본값을 도착으로 설정
+    let currentType = "도착";
 
     function formatLastUpdate(utcStr, offset) {
         if (!utcStr) return "확인 불가";
         const date = new Date(utcStr.replace(/-/g, '/') + " UTC");
         date.setHours(date.getHours() + offset);
-        const month = String(date.getMonth() + 1).padStart(2, '0');
-        const day = String(date.getDate()).padStart(2, '0');
-        const hours = String(date.getHours()).padStart(2, '0');
-        const minutes = String(date.getMinutes()).padStart(2, '0');
-        return `${month}/${day} ${hours}:${minutes}`;
+        const m = String(date.getMonth() + 1).padStart(2, '0');
+        const d = String(date.getDate()).padStart(2, '0');
+        const h = String(date.getHours()).padStart(2, '0');
+        const min = String(date.getMinutes()).padStart(2, '0');
+        return `${m}/${d} ${h}:${min}`;
     }
 
     function getLocalTimeStr(timestamp, offset) {
         const date = new Date((timestamp + (offset * 3600)) * 1000);
-        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
-        const day = String(date.getUTCDate()).padStart(2, '0');
-        const hours = String(date.getUTCHours()).padStart(2, '0');
-        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
-        return `${month}/${day} ${hours}:${minutes}`;
+        const m = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const d = String(date.getUTCDate()).padStart(2, '0');
+        const h = String(date.getUTCHours()).padStart(2, '0');
+        const min = String(date.getUTCMinutes()).padStart(2, '0');
+        return `${m}/${d} ${h}:${min}`;
     }
 
     function init() {
@@ -158,11 +191,8 @@
     function selectCountry(country, btn) {
         currentCountry = country;
         const offset = countryTimeOffsets[country] || 9;
-        
-        const localUpdate = formatLastUpdate(flightInfo.lastUpdateUTC, offset);
-        document.getElementById('update-text').innerText = `※ 마지막 업데이트: ${localUpdate}`;
+        document.getElementById('update-text').innerText = `※ 마지막 업데이트: ${formatLastUpdate(flightInfo.lastUpdateUTC, offset)}`;
         document.getElementById('dynamic-notice').innerText = `(표시된 모든 시간은 ${country} 현지 기준입니다)`;
-        
         document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
@@ -185,8 +215,7 @@
 
     function filterType(type, btn) {
         currentType = type;
-        const btns = btn.parentElement.querySelectorAll('button');
-        btns.forEach(b => b.classList.remove('active'));
+        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
         renderBoard();
     }
@@ -197,7 +226,6 @@
         let flights = flightInfo.allData[currentCountry][currentAirport];
         const offset = countryTimeOffsets[currentCountry] || 9;
 
-        // 도착/출발 필터링 (전체 기능은 삭제됨)
         flights = flights.filter(f => f.type === currentType);
 
         if (!flights || flights.length === 0) {

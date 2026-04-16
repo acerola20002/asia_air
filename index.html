@@ -5,35 +5,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>아시아 실시간 항공 전광판</title>
     <style>
-        body { font-family: 'Pretendard', sans-serif; background-color: #1a1a1a; color: white; margin: 0; padding: 20px; }
+        /* [디자인] 전광판 테마 설정 */
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #1a1a1a; color: white; margin: 0; padding: 20px; line-height: 1.6; }
         .container { max-width: 900px; margin: 0 auto; }
         
-        /* 국가/공항 선택 버튼 스타일 */
-        .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 20px; }
+        /* 버튼 그룹 스타일 */
+        .selector-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 15px; }
         button { 
-            padding: 10px 18px; border: none; border-radius: 8px; cursor: pointer; 
-            font-weight: bold; transition: 0.3s; background: #333; color: #ccc;
+            padding: 10px 16px; border: none; border-radius: 8px; cursor: pointer; 
+            font-weight: bold; transition: 0.2s; background: #333; color: #aaa; font-size: 0.9rem;
         }
-        button.active { background: #007bff; color: white; box-shadow: 0 0 10px rgba(0,123,255,0.5); }
-        button:hover { background: #444; }
+        button.active { background: #007bff; color: white; box-shadow: 0 0 12px rgba(0,123,255,0.4); }
+        button:hover { background: #444; color: white; }
 
-        /* 전광판 표 스타일 */
-        .board-card { background: #252525; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { text-align: center; color: #ffcc00; margin-top: 0; }
-        .update-time { text-align: right; font-size: 0.8rem; color: #888; margin-bottom: 10px; }
+        /* 전광판 카드 스타일 */
+        .board-card { background: #252525; border-radius: 15px; padding: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); border: 1px solid #333; }
+        h2 { text-align: center; color: #ffcc00; margin-top: 0; font-size: 1.4rem; }
+        .update-time { text-align: right; font-size: 0.75rem; color: #777; margin-bottom: 10px; }
         
-        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
-        th { background: #333; color: #aaa; padding: 12px; font-size: 0.9rem; text-align: center; }
-        td { padding: 12px; border-bottom: 1px solid #333; text-align: center; font-size: 0.95rem; }
+        /* 테이블 스타일 */
+        .table-wrapper { overflow-x: auto; }
+        table { width: 100%; border-collapse: collapse; min-width: 500px; }
+        th { background: #2d2d2d; color: #999; padding: 12px; font-size: 0.85rem; text-align: center; border-bottom: 2px solid #3d3d3d; }
+        td { padding: 14px 10px; border-bottom: 1px solid #333; text-align: center; font-size: 0.9rem; }
         
-        /* 상태별 색상 */
-        .status-출발완료, .status-도착완료 { color: #888; }
-        .status-탑승중, .status-도착예정 { color: #28a745; font-weight: bold; }
-        .status-지연 { color: #ff4444; font-weight: bold; }
-        .status-탑승곧마감 { color: #ffcc00; font-weight: bold; animation: blink 1s infinite; }
+        /* 항공 상태별 색상 강조 */
+        .status-출발완료, .status-도착완료 { color: #666; }
+        .status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
+        .status-지연 { color: #e74c3c; font-weight: bold; }
+        .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; }
 
-        @keyframes blink { 50% { opacity: 0.5; } }
-        @media (max-width: 600px) { th, td { padding: 8px; font-size: 0.8rem; } }
+        @keyframes blink { 50% { opacity: 0.4; } }
+        @media (max-width: 600px) { 
+            body { padding: 10px; }
+            h2 { font-size: 1.1rem; }
+            button { padding: 8px 12px; font-size: 0.8rem; }
+        }
     </style>
 </head>
 <body>
@@ -44,9 +51,10 @@
     <div id="airport-buttons" class="selector-group"></div>
 
     <div class="board-card">
-        <div id="update-info" class="update-time"></div>
-        <h2 id="board-title">국가를 선택해주세요</h2>
-        <div style="overflow-x: auto;">
+        <div id="update-info" class="update-time">데이터 로드 중...</div>
+        <h2 id="board-title">국가를 선택해 주세요</h2>
+        
+        <div class="table-wrapper">
             <table>
                 <thead>
                     <tr>
@@ -65,3 +73,95 @@
 </div>
 
 <script src="data.js"></script>
+
+<script>
+    /* [기능] 데이터 매핑 및 화면 출력 로직 */
+    const airportNames = {
+        "NRT": "나리타", "KIX": "간사이", "FUK": "후쿠오카", "CTS": "삿포로", "HND": "하네다", "OKA": "오키나와",
+        "CXR": "나트랑", "DAD": "다낭", "PQC": "푸꾸옥", "HAN": "하노이", "SGN": "호치민", "HPH": "하이퐁",
+        "BKK": "방콕(수완나품)", "DMK": "돈무앙", "CNX": "치앙마이", "HKT": "푸켓",
+        "TPE": "타오위안", "KHH": "가오슝", "TSA": "송산",
+        "MNL": "마닐라", "CEB": "세부", "MPH": "보라카이", "TAG": "보홀",
+        "PVG": "상하이", "PEK": "베이징", "TAO": "칭다오", "CAN": "광저우"
+    };
+
+    let currentCountry = "";
+
+    function init() {
+        if (typeof flightInfo === 'undefined') {
+            document.getElementById('board-title').innerText = "데이터(data.js)를 찾을 수 없습니다.";
+            return;
+        }
+
+        const countryDiv = document.getElementById('country-buttons');
+        const countries = Object.keys(flightInfo.allData);
+        
+        countryDiv.innerHTML = "";
+        countries.forEach(country => {
+            const btn = document.createElement('button');
+            btn.innerText = country;
+            btn.onclick = () => selectCountry(country, btn);
+            countryDiv.appendChild(btn);
+        });
+
+        document.getElementById('update-info').innerText = `마지막 업데이트(UTC): ${flightInfo.lastUpdateUTC}`;
+        
+        // 첫 번째 국가 자동 클릭
+        if(countries.length > 0) countryDiv.firstChild.click();
+    }
+
+    function selectCountry(country, btn) {
+        currentCountry = country;
+        // 국가 버튼 활성화 표시
+        document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        const airportDiv = document.getElementById('airport-buttons');
+        airportDiv.innerHTML = "";
+
+        const airports = Object.keys(flightInfo.allData[country]);
+        airports.forEach(code => {
+            const abtn = document.createElement('button');
+            abtn.innerText = airportNames[code] || code;
+            abtn.onclick = () => renderBoard(code, abtn);
+            airportDiv.appendChild(abtn);
+        });
+
+        // 첫 번째 공항 자동 클릭
+        if(airports.length > 0) airportDiv.firstChild.click();
+    }
+
+    function renderBoard(code, btn) {
+        // 공항 버튼 활성화 표시
+        document.querySelectorAll('#airport-buttons button').forEach(b => b.classList.remove('active'));
+        btn.classList.add('active');
+
+        document.getElementById('board-title').innerText = `${currentCountry} - ${airportNames[code] || code} 전광판`;
+        
+        const tbody = document.getElementById('flight-data');
+        const flights = flightInfo.allData[currentCountry][code];
+        
+        if (!flights || flights.length === 0) {
+            tbody.innerHTML = "<tr><td colspan='5'>표시할 국제선 운항 정보가 없습니다.</td></tr>";
+            return;
+        }
+
+        tbody.innerHTML = flights.map(f => `
+            <tr>
+                <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
+                <td>${f.time}</td>
+                <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
+                <td>${f.city}</td>
+                <td class="status-${f.status.replace(/\s+/g, '')}">${f.status}</td>
+            </tr>
+        `).join('');
+    }
+
+    // 페이지 로드 시 실행 (0.3초 여유 부여)
+    window.onload = () => {
+        setTimeout(init, 300);
+    };
+</script>
+
+</body>
+</html>

@@ -23,6 +23,8 @@ CITY_MAP = {
     "Nha Trang": "나트랑", "Da Nang": "다낭", "Kaohsiung": "가오슝", "Changi": "싱가포르",
     "Chengdu": "청두", "Macau": "마카오", "Hong Kong": "홍콩",
     "Shanghai": "상하이", "Taipei": "타이베이", "Bangkok": "방콕"
+    # 일본 및 기타 도시 추가
+    "Osaka": "오사카", "Tokyo": "도쿄", "Fukuoka": "후쿠오카", "Sapporo": "삿포로", "Nagoya": "나고야", "Okinawa": "오키나와"
 }
 
 IATA_MAP = {"MFM": "마카오", "HKG": "홍콩", "ICN": "인천", "PUS": "부산", "CXR": "나트랑/깜라인"}
@@ -84,10 +86,18 @@ def update_data():
                         country_raw = airport_data.get('position', {}).get('country', {}).get('name', 'Unknown')
 
                         # 기존 필터 로직 그대로 유지
-                        if country_raw == country_name.replace("일본","Japan").replace("베트남","Vietnam").replace("태국","Thailand").replace("대만","Taiwan").replace("필리핀","Philippines").replace("중국","China") or city_raw in DOMESTIC_CITIES:
-                            # (단, 국가명 비교는 영어로 해야 정확하므로 위처럼 처리하거나, 
-                            # 혹은 기존처럼 베트남 전용으로만 두시려면 이 줄을 수정할 수 있습니다.)
-                            pass 
+                        # --- [국내선 필터링 로직 강화] ---
+                        # 1. 목적지/출발지 공항 코드가 현재 국가의 공항 리스트에 있으면 국내선
+                        if iata_code in airport_list:
+                            continue
+
+                        # 2. 영문 국가명이 현재 수집 국가와 같으면 국내선
+                        eng_countries = {"일본":"Japan", "베트남":"Vietnam", "태국":"Thailand", "대만":"Taiwan", "필리핀":"Philippines", "중국":"China"}
+                        current_country_eng = eng_countries.get(country_name, "Unknown")
+                        
+                        if country_raw == current_country_eng or city_raw in DOMESTIC_CITIES:
+                            continue
+                        # --------------------------------
 
                         t_val = get_time_value(flight_info, mode)
                         if not t_val: continue

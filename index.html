@@ -31,13 +31,27 @@
         .group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
         .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
         
-        /* 일반 선택 버튼 */
+        /* [수정] 국가, 공항 선택 버튼 - 더 세련된 디자인으로 */
         button { 
-            padding: 12px 20px; border: none; border-radius: 8px; cursor: pointer; 
-            font-weight: bold; transition: 0.2s; background: #222; color: #aaa; font-size: 0.95rem;
+            padding: 10px 18px; border: 1px solid #333; border-radius: 6px; cursor: pointer; 
+            font-weight: 600; transition: 0.3s; background: #111; color: #777; font-size: 0.9rem;
+            letter-spacing: 0.5px;
         }
-        button.active { background: #444; color: white; border: 1px solid #555; }
-        button:hover { background: #333; color: white; }
+        
+        /* [수정] 국가/공항 버튼 활성화 시 (하늘색 포인트) */
+        button.active { 
+            background: #00d2ff; /* 밝은 하늘색 */
+            color: #000; 
+            border-color: #00d2ff;
+            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); /* 은은한 발광 효과 */
+            font-weight: 800;
+        }
+        
+        button:hover:not(.active) { 
+            background: #222; 
+            color: #fff; 
+            border-color: #555;
+        }
 
         /* 필터 버튼 디자인 (비행기 이모지 대폭 확대 및 노란색 포인트) */
         .filter-btn {

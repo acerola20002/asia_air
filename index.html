@@ -3,71 +3,75 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아시아 항공 전광판</title>
+    <title>아시아 실시간 항공 전광판</title>
     <style>
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #000; color: white; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
+        /* [1] 기본 테마 및 폰트 */
+        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #050505; color: white; margin: 0; padding: 20px; letter-spacing: -0.02em; }
+        .container { max-width: 950px; margin: 0 auto; }
+        
         header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
-        .logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+        .logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 10px; }
         .logo-icon { font-size: 2.5rem; }
-        h1 { color: #ffcc00; margin: 0; font-size: 2.2rem; font-weight: 800; }
-        .update-info { color: #aaa; font-size: 1rem; margin-bottom: 8px; }
-        .time-notice { color: #ff3333; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
+        h1 { color: #ffcc00; margin: 0; font-size: 2.4rem; font-weight: 900; letter-spacing: 2px; }
         
-        /* 안내 문구 원복 */
-        .info-box { border: 1px solid #333; padding: 20px; border-radius: 4px; font-size: 0.95rem; color: #ccc; margin-bottom: 40px; line-height: 1.7; text-align: center; background-color: #0a0a0a; }
+        .update-info { color: #888; font-size: 0.95rem; margin-bottom: 5px; }
+        .time-notice { color: #ff4d4d; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
         
-        .group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 12px; font-weight: bold; }
-        .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
-        
-        button { padding: 10px 18px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: 600; background: #111; color: #777; transition: 0.3s; }
-        button.active { background: #00d2ff; color: #000; border-color: #00d2ff; }
+        /* [2] 안내 문구 박스 - 줄 맞춤 정렬 */
+        .info-box { 
+            border: 1px solid #333; padding: 20px; border-radius: 6px; 
+            font-size: 0.95rem; color: #ccc; margin-bottom: 40px; 
+            background-color: #0a0a0a; display: flex; justify-content: center;
+        }
+        .info-content { display: flex; align-items: flex-start; gap: 12px; text-align: left; max-width: 800px; }
+        .warning-icon { font-size: 1.2rem; line-height: 1.7; }
+        .info-text { line-height: 1.8; color: #bbb; }
+        .info-text b { color: #fff; }
 
-        /* 출발/도착 필터 버튼 강화 */
-        .filter-group { display: flex; gap: 15px; justify-content: center; margin-bottom: 30px; }
+        /* [3] 버튼 및 그룹 스타일 */
+        .group-label { display: block; text-align: center; font-size: 0.75rem; color: #555; margin-bottom: 10px; font-weight: bold; text-transform: uppercase; letter-spacing: 1px; }
+        .selector-group { display: flex; flex-wrap: wrap; gap: 8px; justify-content: center; margin-bottom: 25px; }
+        
+        button { padding: 10px 20px; border: 1px solid #333; border-radius: 6px; cursor: pointer; font-weight: 600; background: #151515; color: #888; transition: all 0.2s; font-size: 0.95rem; }
+        button:hover { border-color: #555; color: #fff; }
+        button.active { background: #ffcc00; color: #000; border-color: #ffcc00; box-shadow: 0 4px 15px rgba(255, 204, 0, 0.2); }
+
+        /* [4] 출발/도착 필터 버튼 디자인 */
+        .filter-group { display: flex; gap: 15px; justify-content: center; margin-bottom: 35px; }
         .filter-btn { 
-            width: 180px; 
-            height: 80px; 
-            display: flex; 
-            flex-direction: column; 
-            align-items: center; 
-            justify-content: center; 
-            gap: 5px;
-            font-size: 1.1rem;
-            border-radius: 12px;
-            background: #1a1a1a;
-            color: #666;
-            border: 2px solid #333;
+            width: 200px; height: 85px; display: flex; flex-direction: column; align-items: center; justify-content: center; 
+            border-radius: 12px; background: #111; color: #666; border: 2px solid #222;
         }
-        .filter-btn .icon { font-size: 1.8rem; }
-        .filter-btn span { font-size: 0.8rem; opacity: 0.7; }
+        .filter-btn .icon { font-size: 2rem; margin-bottom: 3px; opacity: 0.5; transition: 0.3s; }
+        .filter-btn b { font-size: 1.1rem; }
+        .filter-btn.arrival.active { background: #1a1a1a; color: #f1c40f; border-color: #f1c40f; }
+        .filter-btn.arrival.active .icon { opacity: 1; transform: translateY(2px); }
+        .filter-btn.departure.active { background: #1a1a1a; color: #3498db; border-color: #3498db; }
+        .filter-btn.departure.active .icon { opacity: 1; transform: translateY(-2px); }
 
-        /* 도착 활성화 (노란색 계열) */
-        .filter-btn.arrival.active { 
-            background: #f1c40f; 
-            color: #000; 
-            border-color: #f1c40f; 
-            box-shadow: 0 0 15px rgba(241, 196, 15, 0.4);
-        }
-        /* 출발 활성화 (파란색 계열) */
-        .filter-btn.departure.active { 
-            background: #3498db; 
-            color: #fff; 
-            border-color: #3498db; 
-            box-shadow: 0 0 15px rgba(52, 152, 219, 0.4);
-        }
+        /* [5] 전광판 메인 테이블 */
+        .board-card { background: #0a0a0a; border-radius: 15px; padding: 5px; border: 1px solid #222; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .board-header { padding: 20px; border-bottom: 1px solid #222; display: flex; justify-content: space-between; align-items: center; }
+        .board-header h2 { margin: 0; font-size: 1.4rem; color: #fff; }
 
-        .board-card { background: #111; border-radius: 12px; padding: 20px; border: 1px solid #222; }
-        table { width: 100%; border-collapse: collapse; }
-        th { background: #1a1a1a; color: #888; padding: 10px; border-bottom: 2px solid #333; }
-        td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
-        
-        .status-출발완료, .status-도착완료 { color: #555; }
+        table { width: 100%; border-collapse: collapse; table-layout: fixed; }
+        th { background: #151515; color: #555; padding: 15px 10px; font-size: 0.85rem; text-transform: uppercase; letter-spacing: 1px; border-bottom: 2px solid #222; }
+        td { padding: 18px 10px; border-bottom: 1px solid #151515; text-align: center; font-size: 1.05rem; }
+
+        th:nth-child(1), td:nth-child(1) { width: 12%; }
+        th:nth-child(2), td:nth-child(2) { width: 22%; font-weight: bold; color: #ddd; }
+        th:nth-child(3), td:nth-child(3) { width: 20%; font-family: 'Courier New', monospace; font-weight: bold; color: #ffcc00; font-size: 1.1rem; }
+        th:nth-child(4), td:nth-child(4) { width: 24%; color: #fff; }
+        th:nth-child(5), td:nth-child(5) { width: 22%; }
+
+        .status-cell { border-radius: 4px; padding: 4px 10px; display: inline-block; min-width: 80px; }
+        .status-출발완료, .status-도착완료 { color: #444; }
         .status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
         .status-지연 { color: #e74c3c; font-weight: bold; }
-        .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; }
+        .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; border: 1px solid rgba(241, 196, 15, 0.3); }
         
-        @keyframes blink { 50% { opacity: 0.3; } }
+        @keyframes blink { 50% { opacity: 0.2; } }
+        @media (max-width: 600px) { h1 { font-size: 1.8rem; } td, th { font-size: 0.9rem; padding: 12px 5px; } .filter-btn { width: 140px; height: 70px; } }
     </style>
 </head>
 <body>
@@ -93,13 +97,12 @@
         </div>
     </div>
 
-    <span class="group-label">국가 선택 / REGION</span>
+    <span class="group-label">Region Selection</span>
     <div id="country-buttons" class="selector-group"></div>
     
-    <span class="group-label">공항 선택 / AIRPORT</span>
+    <span class="group-label">Airport Selection</span>
     <div id="airport-buttons" class="selector-group"></div>
 
-    <span class="group-label">출발·도착 필터 / FILTER</span>
     <div class="filter-group">
         <button onclick="filterType('도착', this)" class="filter-btn arrival active">
             <span class="icon">🛬</span>
@@ -112,16 +115,18 @@
     </div>
 
     <div class="board-card">
-        <h2 id="board-title">데이터를 불러오는 중...</h2>
+        <div class="board-header">
+            <h2 id="board-title">FLIGHT INFORMATION</h2>
+        </div>
         <div style="overflow-x: auto;">
             <table>
                 <thead>
                     <tr>
-                        <th>구분</th>
-                        <th>시간</th>
-                        <th>편명</th>
-                        <th>도시</th>
-                        <th>상태</th>
+                        <th>TYPE</th>
+                        <th>TIME</th>
+                        <th>FLIGHT</th>
+                        <th>CITY</th>
+                        <th>STATUS</th>
                     </tr>
                 </thead>
                 <tbody id="flight-data"></tbody>
@@ -169,7 +174,6 @@ function selectCountry(country, btn) {
         : localUpdate;
 
     document.getElementById('update-text').innerText = `※ 마지막 업데이트: ${displayTime}`;
-
     document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
     btn.classList.add('active');
 
@@ -206,17 +210,17 @@ function renderBoard() {
     document.getElementById('board-title').innerText = `${currentCountry} - ${airportNames[currentAirport] || currentAirport}`;
 
     if (flights.length === 0) {
-        tbody.innerHTML = "<tr><td colspan='5'>표시할 데이터가 없습니다.</td></tr>";
+        tbody.innerHTML = "<tr><td colspan='5' style='color:#444; padding:50px;'>NO FLIGHT DATA AVAILABLE</td></tr>";
         return;
     }
 
     tbody.innerHTML = flights.map(f => `
         <tr>
-            <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
+            <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}; font-size: 0.8rem; font-weight: bold;">${f.type}</td>
             <td>${f.time}</td>
-            <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
+            <td>${f.flight}</td>
             <td>${f.city}</td>
-            <td class="status-${f.status.replace(/\s+/g,'')}">${f.status}</td>
+            <td><span class="status-cell status-${f.status.replace(/\s+/g,'')}">${f.status}</span></td>
         </tr>
     `).join('');
 }

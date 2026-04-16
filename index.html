@@ -151,32 +151,30 @@
     let currentAirport = "";
     let currentType = "도착";
 
-    // "Z"를 붙여 브라우저 시차 간섭을 차단하는 시간 함수
     function formatTimeCorrectly(utcStr, offset) {
         if (!utcStr) return "확인 불가";
-        const isoStr = utcStr.replace(" ", "T") + "Z";
-        const utcDate = new Date(isoStr);
 
-        let hours = utcDate.getUTCHours() + offset;
-        let month = utcDate.getUTCMonth() + 1;
-        let day = utcDate.getUTCDate();
+        // UTC 명시
+        const utcDate = new Date(utcStr.replace(" ", "T") + "Z");
 
-        if (hours >= 24) { hours -= 24; day += 1; }
-        else if (hours < 0) { hours += 24; day -= 1; }
+        // 지역 시간으로 변환 (핵심)
+        const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
 
-        return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`;
+        return `${String(local.getMonth() + 1).padStart(2, '0')}/` +
+               `${String(local.getDate()).padStart(2, '0')} ` +
+               `${String(local.getHours()).padStart(2, '0')}:` +
+               `${String(local.getMinutes()).padStart(2, '0')}`;
     }
 
     function getLocalTimeStr(timestamp, offset) {
         const utcDate = new Date(timestamp * 1000);
-        let hours = utcDate.getUTCHours() + offset;
-        let month = utcDate.getUTCMonth() + 1;
-        let day = utcDate.getUTCDate();
 
-        if (hours >= 24) { hours -= 24; day += 1; }
-        else if (hours < 0) { hours += 24; day -= 1; }
+        const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
 
-        return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(utcDate.getUTCMinutes()).padStart(2, '0')}`;
+        return `${String(local.getMonth() + 1).padStart(2, '0')}/` +
+               `${String(local.getDate()).padStart(2, '0')} ` +
+               `${String(local.getHours()).padStart(2, '0')}:` +
+               `${String(local.getMinutes()).padStart(2, '0')}`;
     }
 
     function init() {

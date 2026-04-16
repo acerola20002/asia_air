@@ -33,6 +33,15 @@ DOMESTIC_CITIES = [
     "Osaka", "Tokyo", "Fukuoka", "Nagoya", "Sapporo", "Okinawa" # 일본 도시 추가
 ]
 
+# scraper.py 상단에 추가
+COUNTRY_OFFSETS = {
+    "일본": 9,
+    "베트남": 7,
+    "태국": 7,
+    "대만": 8,
+    "필리핀": 8,
+    "중국": 8
+}
 # --- [기존 함수 로직 그대로 유지] ---
 def translate_status(raw_text):
     if not raw_text: return "정보없음"

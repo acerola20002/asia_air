@@ -1,0 +1,165 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>베트남 공항별 국제선 전광판</title>
+
+    <style>
+        body { background: #000; color: #ffcc00; font-family: sans-serif; padding: 10px; margin: 0; }
+        .header { text-align: center; margin-bottom: 20px; padding: 10px; border-bottom: 1px solid #222; }
+        .update-tag { color: #888; font-size: 0.85em; margin-bottom: 10px; }
+        
+        /* 주의사항 상단 배치 스타일 */
+        .notice-box { margin: 10px auto 20px; color: #bbb; font-size: 0.75em; line-height: 1.5; border: 1px solid #333; padding: 10px; max-width: 600px; background: #0a0a0a; }
+
+        /* 도시 선택 버튼 스타일 */
+        .city-container { display: flex; flex-direction: column; gap: 8px; margin-bottom: 20px; align-items: center; }
+        .city-row { display: flex; gap: 8px; justify-content: center; width: 100%; max-width: 600px; }
+        .city-btn { flex: 1; padding: 10px 2px; font-size: 0.85em; cursor: pointer; background: #1a1a1a; border: 1px solid #333; color: #eee; border-radius: 4px; }
+        .city-btn.active { background: #ffcc00; color: #000; font-weight: bold; border-color: #ffcc00; }
+
+        /* 출발/도착 탭 스타일 */
+        .tab-container { display: flex; justify-content: center; gap: 10px; margin-bottom: 20px; }
+        .tab-btn { padding: 12px 30px; font-size: 1.1em; cursor: pointer; background: #222; border: 2px solid #444; color: #888; border-radius: 5px; }
+        .tab-btn.active { border-color: #ffcc00; color: #ffcc00; background: #111; }
+
+        table { width: 100%; border-collapse: collapse; margin-top: 10px; }
+        th { background: #333; color: #fff; padding: 12px; font-size: 0.9em; }
+        td { padding: 12px; border-bottom: 1px solid #222; text-align: center; font-size: 0.95em; }
+        
+        .footer { margin-top: 30px; padding: 20px; text-align: center; }
+        .visitor-counter { margin-top: 10px; opacity: 0.8; }
+    </style>
+</head>
+
+<body>
+
+<div class="header">
+    <h1>✈️ VIETNAM INTERNATIONAL</h1>
+    <div id="update-notice" class="update-tag">데이터 로딩 중...</div>
+    
+    <div class="notice-box">
+        ⚠️ 본 전광판은 FlightRadar24 데이터를 기반으로 개인적인 여행 편의를 위해 제작되었습니다.<br>
+        데이터는 10분 간격으로 자동 업데이트되나 시스템 환경에 따라 차이가 날 수 있습니다.<br>
+        <strong>정확한 운항 정보는 반드시 해당 항공사 공식 홈페이지를 확인해 주세요.</strong>
+    </div>
+
+    <div class="city-container">
+        <div class="city-row">
+            <button class="city-btn active" id="city-CXR" onclick="changeCity('CXR')">나트랑</button>
+            <button class="city-btn" id="city-PQC" onclick="changeCity('PQC')">푸꾸옥</button>
+            <button class="city-btn" id="city-DAD" onclick="changeCity('DAD')">다낭</button>
+        </div>
+        <div class="city-row">
+            <button class="city-btn" id="city-SGN" onclick="changeCity('SGN')">호치민</button>
+            <button class="city-btn" id="city-HAN" onclick="changeCity('HAN')">하노이</button>
+            <button class="city-btn" id="city-HPH" onclick="changeCity('HPH')">하이퐁</button>
+        </div>
+    </div>
+
+    <div id="tab-area" class="tab-container">
+        <div id="btn-arr" class="tab-btn active" onclick="changeType('도착')">▼ 도착</div>
+        <div id="btn-dep" class="tab-btn" onclick="changeType('출발')">▲ 출발</div>
+    </div>
+</div>
+
+<table id="main-table">
+    <thead>
+        <tr>
+            <th>일시</th><th>편명</th><th>도시</th><th>상태</th>
+        </tr>
+    </thead>
+    <tbody id="table-body"></tbody>
+</table>
+
+<div class="footer" style="text-align: center; margin-top: 20px; color: #666; font-size: 14px;">
+    <span>오늘의 방문 횟수: </span>
+    <span id="stats-count">불러오는 중...</span>
+</div>
+
+<script>
+    // GoatCounter에서 내 사이트의 조회수를 텍스트로 가져오는 기능입니다.
+    // '사용자아이디' 부분만 본인의 Account name으로 바꿔주세요!
+    fetch('https://acerola2002.goatcounter.com/counter/TOTAL.json')
+        .then(response => response.json())
+        .then(data => {
+            document.getElementById('stats-count').innerText = data.count;
+        })
+        .catch(err => {
+            document.getElementById('stats-count').innerText = '확인 중';
+        });
+</script>
+
+<script>
+    let currentCity = 'CXR';
+    let currentType = '도착';
+
+    // 캐시 방지 데이터 로드
+    const script = document.createElement("script");
+    script.src = `data.js?v=${Date.now()}`;
+    document.head.appendChild(script);
+
+    script.onload = function() {
+        if (typeof flightInfo !== 'undefined') {
+            // innerHTML을 사용하여 두 줄로 표시하고 강조 문구를 추가합니다.
+            document.getElementById('update-notice').innerHTML = 
+                `※ 마지막 업데이트: ${flightInfo.lastUpdate}<br>` +
+                `<span style="color: #ff4757; font-weight: bold;">(표시된 모든 시간은 베트남 현지 기준입니다)</span>`;
+            renderData();
+        } else {
+            document.getElementById('update-notice').innerText = "데이터를 불러오지 못했습니다.";
+        }
+    };
+
+    function changeCity(code) {
+        currentCity = code;
+        document.querySelectorAll('.city-btn').forEach(b => b.classList.remove('active'));
+        document.getElementById('city-' + code).classList.add('active');
+        renderData();
+    }
+
+    function changeType(type) {
+        currentType = type;
+        document.getElementById('btn-arr').classList.toggle('active', type === '도착');
+        document.getElementById('btn-dep').classList.toggle('active', type === '출발');
+        renderData();
+    }
+
+    function renderData() {
+        const tbody = document.getElementById('table-body');
+        tbody.innerHTML = '';
+
+        // 중요: flightInfo.data가 아니라 flightInfo.allData[currentCity]를 참조합니다.
+        if (!flightInfo || !flightInfo.allData) return;
+        
+        const cityData = flightInfo.allData[currentCity] || [];
+        const filtered = cityData.filter(f => f.type === currentType);
+
+        if (filtered.length === 0) {
+            tbody.innerHTML = '<tr><td colspan="4" style="color:#666; padding:40px;">데이터가 없거나 로딩 중입니다.</td></tr>';
+            return;
+        }
+
+        filtered.forEach(f => {
+            let color = "#fff";
+            if (f.status.includes("지연")) color = "#ff4444";
+            if (f.status.includes("탑승중") || f.status.includes("출발")) color = "#00ffcc";
+            if (f.status.includes("완료")) color = "#00ff00";
+
+            const row = `<tr>
+                <td style="color:#aaa">${f.time}</td>
+                <td>${f.flight}</td>
+                <td>${f.city}</td>
+                <td style="color:${color}; font-weight:bold;">${f.status}</td>
+            </tr>`;
+            tbody.innerHTML += row;
+        });
+    }
+
+    setInterval(() => { location.reload(); }, 300000);
+</script>
+<script data-goatcounter="https://acerola2002.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+</body>
+</html>

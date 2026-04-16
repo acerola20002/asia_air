@@ -168,33 +168,33 @@
     let currentAirport = "";
     let currentType = "도착";
 
-// [최종 교정] 날짜 파싱 및 시차 계산 로직
+    // [완전 해결] 브라우저 시차 간섭을 100% 차단하는 숫자 연산 방식
     function formatTimeCorrectly(utcStr, offset) {
         if (!utcStr) return "확인 불가";
-        
-        // "2026-04-16 12:00" -> 숫자 배열로 분리
         const t = utcStr.split(/[- :]/).map(Number);
         
-        // Date.UTC(년, 월-1, 일, 시, 분) -> 월에서 1을 빼야 정확함
-        const utcDate = new Date(Date.UTC(t[0], t[1] - 1, t[2], t[3], t[4]));
+        // UTC 기준 총 분(Minute) 계산 후 시차(offset) 적용
+        let totalMinutes = (t[3] * 60) + t[4] + (offset * 60);
         
-        // 해당 국가 오프셋 적용
-        utcDate.setUTCHours(utcDate.getUTCHours() + offset);
+        // 날짜가 넘어가는 경우 처리
+        let hour = Math.floor(totalMinutes / 60) % 24;
+        let min = totalMinutes % 60;
+        if (hour < 0) hour += 24;
 
-        const m = String(utcDate.getUTCMonth() + 1).padStart(2, '0');
-        const d = String(utcDate.getUTCDate()).padStart(2, '0');
-        const h = String(utcDate.getUTCHours()).padStart(2, '0');
-        const min = String(utcDate.getUTCMinutes()).padStart(2, '0');
-        
-        return `${m}/${d} ${h}:${min}`;
+        // 날짜(일)는 간단하게 출력 위해 기존 값 유지하되 시차에 따라 가감 (정밀도 보정)
+        let day = t[2];
+        if (Math.floor(totalMinutes / 60) >= 24) day += 1;
+        if (Math.floor(totalMinutes / 60) < 0) day -= 1;
+
+        return `${String(t[1]).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
     }
 
     function getLocalTimeStr(timestamp, offset) {
-        // 타임스탬프(초)에 시차(초)를 더함
-        const localTimestamp = (timestamp + (offset * 3600)) * 1000;
-        const date = new Date(localTimestamp);
+        // 타임스탬프를 UTC 기준 시/분으로 직접 변환 (Date 객체 간섭 차단)
+        const totalSeconds = timestamp + (offset * 3600);
+        const date = new Date(totalSeconds * 1000);
         
-        // 시스템 시차 간섭을 막기 위해 반드시 getUTC 메서드 사용
+        // getUTC 메서드만 사용하여 브라우저 로컬 시간(한국) 무시
         const m = String(date.getUTCMonth() + 1).padStart(2, '0');
         const d = String(date.getUTCDate()).padStart(2, '0');
         const h = String(date.getUTCHours()).padStart(2, '0');
@@ -263,6 +263,20 @@
             tbody.innerHTML = "<tr><td colspan='5'>해당 조건의 정보가 없습니다.</td></tr>";
             return;
         }
+
+        tbody.innerHTML = flights.map(f => {
+            const localTime = getLocalTimeStr(f.timestamp, offset);
+            return `
+                <tr>
+                    <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
+                    <td>${localTime}</td>
+                    <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
+                    <td>${f.city}</td>
+                    <td class="status-${f.status.replace(/\s+/g, '')}">${f.status}</td>
+                </tr>
+            `;
+        }).join('');
+    }
 
         tbody.innerHTML = flights.map(f => {
             const localTime = getLocalTimeStr(f.timestamp, offset);

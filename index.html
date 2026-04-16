@@ -168,46 +168,57 @@
     let currentAirport = "";
     let currentType = "도착";
 
-    // [핵심 수정] 모든 시간을 UTC로 변환 후 숫자 연산으로만 시차 적용 (Date 객체 시차 간섭 방지)
+// [최종 해결] 다른 AI가 제안한 "Z" 강제 부여 방식 적용
     function formatTimeCorrectly(utcStr, offset) {
         if (!utcStr) return "확인 불가";
-        const t = utcStr.split(/[- :]/).map(Number);
-        // UTC 기준 총 분 계산
-        let totalMinutes = (t[3] * 60) + t[4] + (offset * 60);
-        
-        let hour = Math.floor(totalMinutes / 60) % 24;
-        let min = totalMinutes % 60;
-        if (hour < 0) hour += 24;
-        
-        return `${String(t[1]).padStart(2, '0')}/${String(t[2]).padStart(2, '0')} ${String(hour).padStart(2, '0')}:${String(min).padStart(2, '0')}`;
+
+        // 1. 문자열에 'Z'가 없으면 붙여서 강제로 UTC로 인식하게 함
+        // (T를 넣어 ISO 규격을 맞추고 Z를 붙입니다)
+        const isoStr = utcStr.replace(" ", "T") + "Z";
+        const utcDate = new Date(isoStr);
+
+        // 2. 시스템 시차 무시하고 오직 UTC 값만 추출
+        let hours = utcDate.getUTCHours();
+        let minutes = utcDate.getUTCMinutes();
+        let month = utcDate.getUTCMonth() + 1;
+        let day = utcDate.getUTCDate();
+
+        // 3. 국가별 시차(offset) 적용
+        hours += offset;
+
+        // 날짜 바뀜 처리
+        if (hours >= 24) {
+            hours -= 24;
+            day += 1;
+        } else if (hours < 0) {
+            hours += 24;
+            day -= 1;
+        }
+
+        return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     }
 
     function getLocalTimeStr(timestamp, offset) {
-        // 1. 타임스탬프를 UTC 시간으로 변환
+        // 타임스탬프는 이미 UTC 기준이므로 Z를 붙일 필요 없이 바로 생성
         const utcDate = new Date(timestamp * 1000);
-        // 2. UTC 시간 추출 (시스템 시차 무시)
-        let utcHours = utcDate.getUTCHours();
-        let utcMinutes = utcDate.getUTCMinutes();
-        let utcMonth = utcDate.getUTCMonth() + 1;
-        let utcDay = utcDate.getUTCDate();
-
-        // 3. 시차(offset) 직접 가산
-        let localHours = (utcHours + offset);
         
-        // 날짜 바뀜 처리
-        if (localHours >= 24) {
-            localHours -= 24;
-            // 간단한 날짜 처리 (실제 날짜 로직은 복잡하므로 시간 위주 보정)
-        } else if (localHours < 0) {
-            localHours += 24;
+        let hours = utcDate.getUTCHours();
+        let minutes = utcDate.getUTCMinutes();
+        let month = utcDate.getUTCMonth() + 1;
+        let day = utcDate.getUTCDate();
+
+        // 국가별 시차 적용
+        hours += offset;
+
+        if (hours >= 24) {
+            hours -= 24;
+            day += 1;
+        } else if (hours < 0) {
+            hours += 24;
+            day -= 1;
         }
 
-        const m = String(utcMonth).padStart(2, '0');
-        const d = String(utcDay).padStart(2, '0');
-        const h = String(localHours).padStart(2, '0');
-        const min = String(utcMinutes).padStart(2, '0');
-        
-        return `${m}/${d} ${h}:${min}`;
+        return `${String(month).padStart(2, '0')}/${String(day).padStart(2, '0')} ${String(hours).padStart(2, '0')}:${String(minutes).padStart(2, '0')}`;
     }
 
     function init() {

@@ -8,17 +8,14 @@
         body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #000; color: white; margin: 0; padding: 20px; }
         .container { max-width: 900px; margin: 0 auto; }
         
-        /* [상단 헤더 - 이미지 스타일 재현] */
         header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
         .logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .logo-icon { font-size: 2.5rem; } /* 비행기 이모지 */
+        .logo-icon { font-size: 2.5rem; }
         h1 { color: #ffcc00; margin: 0; font-size: 2.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
         
         .update-info { color: #aaa; font-size: 1rem; margin-bottom: 8px; }
-        /* 강조된 현지 시간 안내 문구 */
         .time-notice { color: #ff3333; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
 
-        /* [안내 박스 - 이미지 스타일 재현] */
         .info-box { 
             border: 1px solid #333; padding: 20px; border-radius: 4px; 
             font-size: 0.95rem; color: #ccc; margin-bottom: 40px; 
@@ -27,7 +24,6 @@
         .info-box b { color: #fff; }
         .warning-icon { color: #ffcc00; margin-right: 8px; }
 
-        /* [버튼 그룹] */
         .group-label { display: block; text-align: center; font-size: 0.75rem; color: #666; margin-bottom: 8px; text-transform: uppercase; letter-spacing: 2px; }
         .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 25px; }
         
@@ -38,7 +34,6 @@
         button.active { background: #007bff; color: white; }
         button:hover { background: #333; color: white; }
 
-        /* [전광판 디자인] */
         .board-card { background: #111; border-radius: 12px; padding: 20px; border: 1px solid #222; }
         h2 { text-align: center; color: #ffcc00; margin-top: 0; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
         
@@ -46,7 +41,6 @@
         th { background: #1a1a1a; color: #888; padding: 15px; font-size: 0.85rem; border-bottom: 2px solid #333; }
         td { padding: 15px 10px; border-bottom: 1px solid #222; text-align: center; font-size: 0.95rem; }
         
-        /* 상태별 색상 */
         .status-출발완료, .status-도착완료 { color: #555; }
         .status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
         .status-지연 { color: #e74c3c; font-weight: bold; }
@@ -118,16 +112,30 @@
         "PVG": "상하이", "PEK": "베이징", "TAO": "칭다오", "CAN": "광저우"
     };
 
+    // 국가별 시차 매핑 (UTC 기준 더하기)
+    const countryTimeOffsets = {
+        "일본": 9, "베트남": 7, "태국": 7, "대만": 8, "필리핀": 8, "중국": 8
+    };
+
     let currentCountry = "";
     let currentAirport = "";
     let currentType = "전체";
 
+    // [기능] 타임스탬프를 현지 시간 문자열로 변환
+    function getLocalTimeStr(timestamp, offset) {
+        // timestamp(초)에 시차(시간 * 3600초)를 더함
+        const date = new Date((timestamp + (offset * 3600)) * 1000);
+        const month = String(date.getUTCMonth() + 1).padStart(2, '0');
+        const day = String(date.getUTCDate()).padStart(2, '0');
+        const hours = String(date.getUTCHours()).padStart(2, '0');
+        const minutes = String(date.getUTCMinutes()).padStart(2, '0');
+        return `${month}/${day} ${hours}:${minutes}`;
+    }
+
     function init() {
         if (typeof flightInfo === 'undefined') return;
-
         const countries = Object.keys(flightInfo.allData);
         const countryDiv = document.getElementById('country-buttons');
-        
         countryDiv.innerHTML = "";
         countries.forEach(country => {
             const btn = document.createElement('button');
@@ -135,26 +143,21 @@
             btn.onclick = () => selectCountry(country, btn);
             countryDiv.appendChild(btn);
         });
-
-        // 마지막 업데이트 시간 표시
         document.getElementById('update-text').innerText = `※ 마지막 업데이트: ${flightInfo.lastUpdateUTC} (UTC)`;
         if(countries.length > 0) countryDiv.firstChild.click();
     }
 
     function selectCountry(country, btn) {
         currentCountry = country;
+        const offset = countryTimeOffsets[country] || 9;
+        document.getElementById('dynamic-notice').innerText = `(표시된 모든 시간은 ${country} 현지 기준 [UTC+${offset}] 입니다)`;
         
-        // [핵심] 국가 선택에 따른 안내 문구 변경 로직
-        const noticeElement = document.getElementById('dynamic-notice');
-        noticeElement.innerText = `(표시된 모든 시간은 ${country} 현지 기준입니다)`;
-
         document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
         btn.classList.add('active');
 
         const airportDiv = document.getElementById('airport-buttons');
         airportDiv.innerHTML = "";
         const airports = Object.keys(flightInfo.allData[country]);
-        
         airports.forEach(code => {
             const abtn = document.createElement('button');
             abtn.innerText = airportNames[code] || code;
@@ -166,7 +169,6 @@
             };
             airportDiv.appendChild(abtn);
         });
-
         if(airports.length > 0) airportDiv.firstChild.click();
     }
 
@@ -183,6 +185,8 @@
         const tbody = document.getElementById('flight-data');
         let flights = flightInfo.allData[currentCountry][currentAirport];
         
+        const offset = countryTimeOffsets[currentCountry] || 9;
+
         if (currentType !== "전체") {
             flights = flights.filter(f => f.type === currentType);
         }
@@ -192,15 +196,19 @@
             return;
         }
 
-        tbody.innerHTML = flights.map(f => `
-            <tr>
-                <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
-                <td>${f.time}</td>
-                <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
-                <td>${f.city}</td>
-                <td class="status-${f.status.replace(/\s+/g, '')}">${f.status}</td>
-            </tr>
-        `).join('');
+        tbody.innerHTML = flights.map(f => {
+            // [중요] 기존 f.time 대신 f.timestamp를 이용해 현지 시각 계산
+            const localTime = getLocalTimeStr(f.timestamp, offset);
+            return `
+                <tr>
+                    <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
+                    <td>${localTime}</td>
+                    <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
+                    <td>${f.city}</td>
+                    <td class="status-${f.status.replace(/\s+/g, '')}">${f.status}</td>
+                </tr>
+            `;
+        }).join('');
     }
 
     window.onload = () => setTimeout(init, 300);

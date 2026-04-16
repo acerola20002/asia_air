@@ -1,0 +1,47 @@
+name: Update Flight Data
+
+on:
+  schedule:
+    - cron: '*/10 * * * *'
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write
+    
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v4
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+         python -m pip install --upgrade pip
+         pip install FlightRadarAPI beautifulsoup4
+
+      - name: Run Scraper
+        # 여기서도 python -m으로 패키지를 인식하도록 시도하거나 직접 실행
+        run: python scraper.py
+
+      - name: Commit and Push
+        run: |
+          git config --global user.email "action@github.com"
+          git config --global user.name "GitHub Action"
+          
+          # 1. 원격의 최신 상태를 일단 가져옴 (충돌 방지 밑작업)
+          git fetch origin main
+          
+          # 2. 내(봇)가 만든 data.js를 강제로 스테이징
+          git add data.js
+          
+          # 3. 커밋 (변경사항 없으면 통과)
+          git commit -m "Update flight data $(date)" || echo "No changes to commit"
+          
+          # 4. 강제로 밀어넣기 (Force Push) - 충돌 해결의 핵심
+          git push origin main --force

@@ -1,83 +1,53 @@
 <!DOCTYPE html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>아시아 실시간 항공 전광판</title>
-    <style>
-        /* 기본 배경 및 글꼴 */
-        body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #000; color: white; margin: 0; padding: 20px; }
-        .container { max-width: 900px; margin: 0 auto; }
-        
-        /* 상단 헤더 */
-        header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
-        .logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
-        .logo-icon { font-size: 2.5rem; }
-        h1 { color: #ffcc00; margin: 0; font-size: 2.2rem; font-weight: 800; text-transform: uppercase; letter-spacing: 2px; }
-        
-        .update-info { color: #aaa; font-size: 1rem; margin-bottom: 8px; }
-        .time-notice { color: #ff3333; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>아시아 실시간 항공 전광판</title>
 
-        /* 안내 박스 */
-        .info-box { 
-            border: 1px solid #333; padding: 20px; border-radius: 4px; 
-            font-size: 0.95rem; color: #ccc; margin-bottom: 40px; 
-            line-height: 1.7; text-align: center; background-color: #0a0a0a;
-        }
-        .info-box b { color: #fff; }
-        .warning-icon { color: #ffcc00; margin-right: 8px; }
+<style>
+body { font-family: 'Pretendard', -apple-system, sans-serif; background-color: #000; color: white; margin: 0; padding: 20px; }
+.container { max-width: 900px; margin: 0 auto; }
 
-        /* 섹션 라벨 */
-        .group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 12px; font-weight: bold; letter-spacing: 1px; }
-        .selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
-        
-        /* 국가, 공항 선택 버튼 (하늘색 포인트) */
-        button { 
-            padding: 10px 18px; border: 1px solid #333; border-radius: 6px; cursor: pointer; 
-            font-weight: 600; transition: 0.3s; background: #111; color: #777; font-size: 0.9rem;
-            letter-spacing: 0.5px;
-        }
-        button.active { 
-            background: #00d2ff; color: #000; border-color: #00d2ff;
-            box-shadow: 0 0 15px rgba(0, 210, 255, 0.4); font-weight: 800;
-        }
-        button:hover:not(.active) { background: #222; color: #fff; border-color: #555; }
+header { text-align: center; margin-bottom: 30px; padding-top: 20px; }
+.logo-title { display: flex; align-items: center; justify-content: center; gap: 15px; margin-bottom: 20px; }
+.logo-icon { font-size: 2.5rem; }
+h1 { color: #ffcc00; margin: 0; font-size: 2.2rem; font-weight: 800; }
 
-        /* 필터 버튼 디자인 (노란색 포인트) */
-        .filter-btn {
-            width: 170px; height: 70px; background: #1a1a1a; color: #666; 
-            border: 1px solid #333; display: flex; align-items: center; justify-content: center; gap: 12px;
-        }
-        .filter-btn.active { 
-            background: #ffcc00; color: #000; border-color: #ffcc00;
-            box-shadow: 0 0 20px rgba(255, 204, 0, 0.4); 
-        }
-        .filter-btn .btn-icon { font-size: 2.5rem; }
-        .btn-text { display: flex; flex-direction: column; align-items: flex-start; text-align: left; }
-        .btn-text b { font-size: 1.2rem; line-height: 1; }
-        .btn-text span { font-size: 0.7rem; opacity: 0.7; }
+.update-info { color: #aaa; font-size: 1rem; margin-bottom: 8px; }
+.time-notice { color: #ff3333; font-size: 1.1rem; font-weight: bold; margin-bottom: 20px; }
 
-        /* 전광판 카드 및 테이블 */
-        .board-card { background: #111; border-radius: 12px; padding: 20px; border: 1px solid #222; }
-        h2 { text-align: center; color: #ffcc00; margin-top: 0; font-size: 1.4rem; margin-bottom: 20px; border-bottom: 1px solid #222; padding-bottom: 15px; }
-        
-        table { width: 100%; border-collapse: collapse; min-width: 500px; }
-        th { background: #1a1a1a; color: #888; padding: 15px; font-size: 0.85rem; border-bottom: 2px solid #333; }
-        td { padding: 15px 10px; border-bottom: 1px solid #222; text-align: center; font-size: 0.95rem; }
-        
-        .status-출발완료, .status-도착완료 { color: #555; }
-        .status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
-        .status-지연 { color: #e74c3c; font-weight: bold; }
-        .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; }
+.info-box { 
+    border: 1px solid #333; padding: 20px; border-radius: 4px; 
+    font-size: 0.95rem; color: #ccc; margin-bottom: 40px; 
+    line-height: 1.7; text-align: center; background-color: #0a0a0a;
+}
 
-        @keyframes blink { 50% { opacity: 0.4; } }
-        @media (max-width: 600px) {
-            h1 { font-size: 1.6rem; }
-            .filter-btn { width: 140px; height: 60px; gap: 8px; }
-            .filter-btn .btn-icon { font-size: 2rem; }
-        }
-    </style>
+.group-label { display: block; text-align: center; font-size: 0.8rem; color: #666; margin-bottom: 12px; font-weight: bold; }
+.selector-group { display: flex; flex-wrap: wrap; gap: 10px; justify-content: center; margin-bottom: 30px; }
+
+button { 
+    padding: 10px 18px; border: 1px solid #333; border-radius: 6px; cursor: pointer; 
+    font-weight: 600; background: #111; color: #777;
+}
+button.active { background: #00d2ff; color: #000; }
+
+.filter-btn { width: 150px; height: 60px; }
+.filter-btn.active { background: #ffcc00; color: #000; }
+
+.board-card { background: #111; border-radius: 12px; padding: 20px; border: 1px solid #222; }
+
+table { width: 100%; border-collapse: collapse; }
+th { background: #1a1a1a; color: #888; padding: 10px; }
+td { padding: 10px; border-bottom: 1px solid #222; text-align: center; }
+
+.status-출발완료, .status-도착완료 { color: #555; }
+.status-탑승중, .status-도착예정 { color: #2ecc71; font-weight: bold; }
+.status-지연 { color: #e74c3c; font-weight: bold; }
+.status-탑승곧마감 { color: #f1c40f; font-weight: bold; }
+</style>
 </head>
+
 <body>
 
 <div class="container">
@@ -87,172 +57,127 @@
             <h1>ASIA INTERNATIONAL</h1>
         </div>
         <div id="update-text" class="update-info">※ 마지막 업데이트: 확인 중...</div>
-        <div id="dynamic-notice" class="time-notice">(표시된 모든 시간은 현지 기준입니다)</div>
+        <div id="dynamic-notice" class="time-notice">(각 국가 현지 시간 기준)</div>
     </header>
 
     <div class="info-box">
-        <span class="warning-icon">⚠️</span> 본 전광판은 <b>FlightRadar24</b> 데이터를 기반으로 개인적인 여행 편의를 위해 제작되었습니다.<br>
-        데이터는 <b>1시간 간격으로 업데이트</b>되며, <b>업데이트 시간 간격상 실시간 제공은 안됩니다.</b><br>
-        <b>실시간 운항 정보는 반드시 해당 항공사 또는 공항 공식 홈페이지를 확인해 주세요.</b>
+        ⚠️ 본 전광판은 참고용입니다. 실제 정보는 항공사 확인 필수
     </div>
 
-    <span class="group-label">REGION / 국가 선택</span>
+    <span class="group-label">국가 선택</span>
     <div id="country-buttons" class="selector-group"></div>
     
-    <span class="group-label">AIRPORT / 공항 선택</span>
+    <span class="group-label">공항 선택</span>
     <div id="airport-buttons" class="selector-group"></div>
 
-    <span class="group-label">FILTER / 출발·도착</span>
+    <span class="group-label">출발 / 도착</span>
     <div class="selector-group">
-        <button id="btn-arr" class="filter-btn active" onclick="filterType('도착', this)">
-            <span class="btn-icon">🛬</span>
-            <div class="btn-text"><b>도착</b><span>ARRIVAL</span></div>
-        </button>
-        <button id="btn-dep" class="filter-btn" onclick="filterType('출발', this)">
-            <span class="btn-icon">🛫</span>
-            <div class="btn-text"><b>출발</b><span>DEPARTURE</span></div>
-        </button>
+        <button onclick="filterType('도착', this)" class="filter-btn active">도착</button>
+        <button onclick="filterType('출발', this)" class="filter-btn">출발</button>
     </div>
 
     <div class="board-card">
-        <h2 id="board-title">정보를 불러오는 중입니다...</h2>
-        <div style="overflow-x: auto;">
-            <table>
-                <thead>
-                    <tr>
-                        <th>구분</th>
-                        <th>시간</th>
-                        <th>편명</th>
-                        <th>도시</th>
-                        <th>상태</th>
-                    </tr>
-                </thead>
-                <tbody id="flight-data"></tbody>
-            </table>
-        </div>
+        <h2 id="board-title">불러오는 중...</h2>
+        <table>
+            <thead>
+                <tr>
+                    <th>구분</th>
+                    <th>시간</th>
+                    <th>편명</th>
+                    <th>도시</th>
+                    <th>상태</th>
+                </tr>
+            </thead>
+            <tbody id="flight-data"></tbody>
+        </table>
     </div>
 </div>
 
 <script src="data.js"></script>
 
 <script>
-    const airportNames = {
-        "NRT": "나리타", "KIX": "간사이", "FUK": "후쿠오카", "CTS": "삿포로", "HND": "하네다", "OKA": "오키나와",
-        "CXR": "나트랑", "DAD": "다낭", "PQC": "푸꾸옥", "HAN": "하노이", "SGN": "호치민", "HPH": "하이퐁",
-        "BKK": "방콕", "DMK": "돈무앙", "CNX": "치앙마이", "HKT": "푸켓",
-        "TPE": "타이베이", "KHH": "가오슝", "TSA": "송산",
-        "MNL": "마닐라", "CEB": "세부", "MPH": "보라카이", "TAG": "보홀",
-        "PVG": "상하이", "PEK": "베이징", "TAO": "칭다오", "CAN": "광저우"
-    };
+let currentCountry = "";
+let currentAirport = "";
+let currentType = "도착";
 
-    const countryTimeOffsets = { "일본": 9, "베트남": 7, "태국": 7, "대만": 8, "필리핀": 8, "중국": 8 };
+function init() {
+    const countries = Object.keys(flightInfo.allData);
+    const countryDiv = document.getElementById('country-buttons');
 
-    let currentCountry = "";
-    let currentAirport = "";
-    let currentType = "도착";
+    countries.forEach(country => {
+        const btn = document.createElement('button');
+        btn.innerText = country;
+        btn.onclick = () => selectCountry(country, btn);
+        countryDiv.appendChild(btn);
+    });
 
-    function formatTimeCorrectly(utcStr, offset) {
-        if (!utcStr) return "확인 불가";
+    if (countries.length > 0) countryDiv.firstChild.click();
+}
 
-        // UTC 명시
-        const utcDate = new Date(utcStr.replace(" ", "T") + "Z");
+function selectCountry(country, btn) {
+    currentCountry = country;
 
-        // 지역 시간으로 변환 (핵심)
-        const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
+    // 🔥 Python에서 이미 계산된 시간 그대로 출력
+    document.getElementById('update-text').innerText =
+        `※ 마지막 업데이트: ${flightInfo.lastUpdateUTC[country]}`;
 
-        return `${String(local.getMonth() + 1).padStart(2, '0')}/` +
-               `${String(local.getDate()).padStart(2, '0')} ` +
-               `${String(local.getHours()).padStart(2, '0')}:` +
-               `${String(local.getMinutes()).padStart(2, '0')}`;
+    document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+
+    const airportDiv = document.getElementById('airport-buttons');
+    airportDiv.innerHTML = "";
+
+    const airports = Object.keys(flightInfo.allData[country]);
+
+    airports.forEach(code => {
+        const abtn = document.createElement('button');
+        abtn.innerText = code;
+        abtn.onclick = () => {
+            currentAirport = code;
+            renderBoard();
+            document.querySelectorAll('#airport-buttons button').forEach(b => b.classList.remove('active'));
+            abtn.classList.add('active');
+        };
+        airportDiv.appendChild(abtn);
+    });
+
+    if (airports.length > 0) airportDiv.firstChild.click();
+}
+
+function filterType(type, btn) {
+    currentType = type;
+    document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    renderBoard();
+}
+
+function renderBoard() {
+    const tbody = document.getElementById('flight-data');
+
+    let flights = flightInfo.allData[currentCountry][currentAirport];
+    flights = flights.filter(f => f.type === currentType);
+
+    document.getElementById('board-title').innerText =
+        `${currentCountry} - ${currentAirport}`;
+
+    if (flights.length === 0) {
+        tbody.innerHTML = "<tr><td colspan='5'>데이터 없음</td></tr>";
+        return;
     }
 
-    function getLocalTimeStr(timestamp, offset) {
-        const utcDate = new Date(timestamp * 1000);
+    tbody.innerHTML = flights.map(f => `
+        <tr>
+            <td>${f.type}</td>
+            <td>${f.time}</td>
+            <td>${f.flight}</td>
+            <td>${f.city}</td>
+            <td class="status-${f.status.replace(/\s+/g,'')}">${f.status}</td>
+        </tr>
+    `).join('');
+}
 
-        const local = new Date(utcDate.getTime() + offset * 60 * 60 * 1000);
-
-        return `${String(local.getMonth() + 1).padStart(2, '0')}/` +
-               `${String(local.getDate()).padStart(2, '0')} ` +
-               `${String(local.getHours()).padStart(2, '0')}:` +
-               `${String(local.getMinutes()).padStart(2, '0')}`;
-    }
-
-    function init() {
-        if (typeof flightInfo === 'undefined') return;
-        const countries = Object.keys(flightInfo.allData);
-        const countryDiv = document.getElementById('country-buttons');
-        countryDiv.innerHTML = "";
-        countries.forEach(country => {
-            const btn = document.createElement('button');
-            btn.innerText = country;
-            btn.onclick = () => selectCountry(country, btn);
-            countryDiv.appendChild(btn);
-        });
-        if(countries.length > 0) countryDiv.firstChild.click();
-    }
-
-    function selectCountry(country, btn) {
-        currentCountry = country;
-        const offset = countryTimeOffsets[country] || 9;
-        document.getElementById('update-text').innerText = `※ 마지막 업데이트: ${formatTimeCorrectly(flightInfo.lastUpdateUTC, offset)}`;
-        document.getElementById('dynamic-notice').innerText = `(표시된 모든 시간은 ${country} 현지 기준입니다)`;
-        document.querySelectorAll('#country-buttons button').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-
-        const airportDiv = document.getElementById('airport-buttons');
-        airportDiv.innerHTML = "";
-        const airports = Object.keys(flightInfo.allData[country]);
-        airports.forEach(code => {
-            const abtn = document.createElement('button');
-            abtn.innerText = airportNames[code] || code;
-            abtn.onclick = () => {
-                currentAirport = code;
-                renderBoard();
-                document.querySelectorAll('#airport-buttons button').forEach(b => b.classList.remove('active'));
-                abtn.classList.add('active');
-            };
-            airportDiv.appendChild(abtn);
-        });
-        if(airports.length > 0) airportDiv.firstChild.click();
-    }
-
-    function filterType(type, btn) {
-        currentType = type;
-        document.querySelectorAll('.filter-btn').forEach(b => b.classList.remove('active'));
-        btn.classList.add('active');
-        renderBoard();
-    }
-
-    function renderBoard() {
-        const tbody = document.getElementById('flight-data');
-        if (!flightInfo.allData[currentCountry] || !flightInfo.allData[currentCountry][currentAirport]) return;
-        
-        document.getElementById('board-title').innerText = `${currentCountry} - ${airportNames[currentAirport] || currentAirport} 실시간 전광판`;
-        let flights = flightInfo.allData[currentCountry][currentAirport];
-        const offset = countryTimeOffsets[currentCountry] || 9;
-
-        flights = flights.filter(f => f.type === currentType);
-
-        if (flights.length === 0) {
-            tbody.innerHTML = "<tr><td colspan='5'>해당 조건의 정보가 없습니다.</td></tr>";
-            return;
-        }
-
-        tbody.innerHTML = flights.map(f => {
-            const localTime = getLocalTimeStr(f.timestamp, offset);
-            return `
-                <tr>
-                    <td style="color: ${f.type === '출발' ? '#3498db' : '#f1c40f'}">${f.type}</td>
-                    <td>${localTime}</td>
-                    <td style="font-family: monospace; font-weight: bold;">${f.flight}</td>
-                    <td>${f.city}</td>
-                    <td class="status-${f.status.replace(/\s+/g, '')}">${f.status}</td>
-                </tr>
-            `;
-        }).join('');
-    }
-
-    window.onload = () => setTimeout(init, 300);
+window.onload = init;
 </script>
+
 </body>
 </html>

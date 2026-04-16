@@ -122,7 +122,11 @@ def update_data():
 
                         # 화면 표시용 시각 (가독성을 위해 UTC String으로 넘기고 JS에서 현지화하거나, 일단 기존처럼 저장)
                         # 여기서는 기존 구조 유지를 위해 그대로 둡니다.
-                        date_str = f_time_utc.strftime('%m/%d %H:%M') 
+                        offset = COUNTRY_OFFSETS.get(country_name, 9)
+
+                        local_time = f_time_utc + datetime.timedelta(hours=offset)
+
+                        date_str = local_time.strftime('%m/%d %H:%M')
                         raw_status = flight_info.get('status', {}).get('text', '')
                         kor_status = translate_status(raw_status)
 
@@ -156,7 +160,10 @@ def update_data():
 
         # 최종 저장 (JS 변수명은 기존 flightInfo 유지)
         final_output = {
-            "lastUpdateUTC": now_utc.strftime('%Y-%m-%d %H:%M:%S'),
+            "lastUpdateUTC": {
+                country: (now_utc + datetime.timedelta(hours=offset)).strftime('%Y-%m-%d %H:%M:%S')
+                for country, offset in COUNTRY_OFFSETS.items()
+            },
             "allData": final_all_storage
         }
 

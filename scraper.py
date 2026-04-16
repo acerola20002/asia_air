@@ -28,7 +28,10 @@ CITY_MAP = {
 }
 
 IATA_MAP = {"MFM": "마카오", "HKG": "홍콩", "ICN": "인천", "PUS": "부산", "CXR": "나트랑/깜라인"}
-DOMESTIC_CITIES = ["Ho Chi Minh City", "Hanoi", "Da Nang", "Dalat", "Hai Phong", "Dong Hoi", "Can Tho", "Phu Quoc", "Vinh", "Hue", "Tuy Hoa", "Qui Nhon", "Chu Lai"]
+DOMESTIC_CITIES = [
+    "Ho Chi Minh City", "Hanoi", "Da Nang", "Dalat", "Hai Phong", "Phu Quoc", 
+    "Osaka", "Tokyo", "Fukuoka", "Nagoya", "Sapporo", "Okinawa" # 일본 도시 추가
+]
 
 # --- [기존 함수 로직 그대로 유지] ---
 def translate_status(raw_text):

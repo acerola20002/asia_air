@@ -22,7 +22,7 @@ CITY_MAP = {
     "Muan": "무안", "Seoul": "서울", "Ho Chi Minh City": "호치민", "Hanoi": "하노이",
     "Nha Trang": "나트랑", "Da Nang": "다낭", "Kaohsiung": "가오슝", "Changi": "싱가포르",
     "Chengdu": "청두", "Macau": "마카오", "Hong Kong": "홍콩",
-    "Shanghai": "상하이", "Taipei": "타이베이", "Bangkok": "방콕"
+    "Shanghai": "상하이", "Taipei": "타이베이", "Bangkok": "방콕", # <--- 여기에 쉼표가 꼭 있어야 합니다!
     # 일본 및 기타 도시 추가
     "Osaka": "오사카", "Tokyo": "도쿄", "Fukuoka": "후쿠오카", "Sapporo": "삿포로", "Nagoya": "나고야", "Okinawa": "오키나와"
 }

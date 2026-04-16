@@ -85,17 +85,19 @@ def update_data():
                         city_raw = airport_data.get('position', {}).get('region', {}).get('city', 'Unknown')
                         country_raw = airport_data.get('position', {}).get('country', {}).get('name', 'Unknown')
 
-                        # 기존 필터 로직 그대로 유지
-                        # --- [국내선 필터링 로직 강화] ---
-                        # 1. 목적지/출발지 공항 코드가 현재 국가의 공항 리스트에 있으면 국내선
-                        if iata_code in airport_list:
+                        # --- [국내선 필터링 최종 보강] ---
+                        # 1. 공항 코드가 현재 국가 리스트에 있으면 무조건 제외 (IATA 기준)
+                        if iata_code.upper() in [c.upper() for c in airport_list.keys()]:
                             continue
 
-                        # 2. 영문 국가명이 현재 수집 국가와 같으면 국내선
-                        eng_countries = {"일본":"Japan", "베트남":"Vietnam", "태국":"Thailand", "대만":"Taiwan", "필리핀":"Philippines", "중국":"China"}
-                        current_country_eng = eng_countries.get(country_name, "Unknown")
+                        # 2. 국가 이름 대소문자 무시하고 비교
+                        eng_countries = {"일본":"JAPAN", "베트남":"VIETNAM", "태국":"THAILAND", "대만":"TAIWAN", "필리핀":"PHILIPPINES", "중국":"CHINA"}
+                        current_country_eng = eng_countries.get(country_name, "").upper()
                         
-                        if country_raw == current_country_eng or city_raw in DOMESTIC_CITIES:
+                        # API 국가명도 대문자로 변환해서 비교
+                        target_country_upper = country_raw.strip().upper()
+
+                        if target_country_upper == current_country_eng or city_raw in DOMESTIC_CITIES:
                             continue
                         # --------------------------------
 

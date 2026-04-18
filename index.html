@@ -261,41 +261,48 @@ function renderBoard() {
 
 window.onload = init;
 </script>
-    <div style="text-align: center; margin: 20px 0; font-size: 0.85rem; color: #ffffff;">
-        <div>📊 방문자 통계</div>
-        <div style="margin-top:5px;">
-            오늘: <span id="gc-today">0</span>명 /
-            총 방문자: <span id="gc-total">0</span>명
-        </div>
+<!-- 방문자 표시 -->
+<div style="text-align: center; margin: 20px 0; font-size: 0.85rem; color: #ffffff;">
+    <div>📊 방문자 통계</div>
+    <div style="margin-top:5px;">
+        오늘: <span id="gc-today">0</span>명 /
+        총 방문자: <span id="gc-total">0</span>명
     </div>
-<script data-goatcounter="https://acerola2002.goatcounter.com/count"
-        async src="//gc.zgo.at/count.js"></script>
+</div>
+
+<!-- 방문자 수 불러오기 -->
 <script>
 async function loadCounter() {
     try {
-        const res = await fetch("https://acerola2002.goatcounter.com/counter/board.json");
+        const res = await fetch("https://acerola2002.goatcounter.com/counter/.json");
         const data = await res.json();
+        document.getElementById("gc-total").innerText = data.count ?? 0;
 
-        // 총 방문자
-        document.getElementById("gc-total").innerText = data.count || 0;
+        // 오늘 방문자 (간단 버전)
+        let todayKey = new Date().toISOString().slice(0, 10);
+        let todayCount = localStorage.getItem("today_" + todayKey);
 
-        // 오늘 방문자 (stats API)
-        const statsRes = await fetch("https://acerola2002.goatcounter.com/api/v0/stats/hits?path=/board&interval=day");
-        const statsData = await statsRes.json();
-
-        if (statsData && statsData.stats && statsData.stats.length > 0) {
-            document.getElementById("gc-today").innerText = statsData.stats[0].count || 0;
+        if (!todayCount) {
+            todayCount = 1;
         } else {
-            document.getElementById("gc-today").innerText = 0;
+            todayCount = parseInt(todayCount) + 1;
         }
 
+        localStorage.setItem("today_" + todayKey, todayCount);
+        document.getElementById("gc-today").innerText = todayCount;
+
     } catch (e) {
-        document.getElementById("gc-today").innerText = "-";
-        document.getElementById("gc-total").innerText = "-";
+        document.getElementById("gc-total").innerText = "ERR";
+        document.getElementById("gc-today").innerText = "ERR";
     }
 }
 
 loadCounter();
-</script>    
+</script>
+
+<!-- GoatCounter (이게 핵심) -->
+<script data-goatcounter="https://acerola2002.goatcounter.com/count"
+        async src="//gc.zgo.at/count.js"></script>
+
 </body>
 </html>

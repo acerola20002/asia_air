@@ -45,7 +45,7 @@ jobs:
             # 충돌 방지: 원격의 변경사항을 가져와 내 변경사항을 그 위에 쌓음 (rebase)
             # --force 대신 rebase를 쓰는 것이 장기적으로 리포지토리 꼬임을 방지합니다.
             git pull --rebase origin main
-            git push origin main
+            git push origin main --force
           else
             echo "No changes to commit"
           fi

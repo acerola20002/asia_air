@@ -274,26 +274,25 @@ window.onload = init;
 <script>
 async function loadCounter() {
     try {
-        const res = await fetch("https://acerola2002.goatcounter.com/counter/.json");
+        const res = await fetch("https://acerola2002.goatcounter.com/counter/asia_air/.json");
         const data = await res.json();
+
         document.getElementById("gc-total").innerText = data.count ?? 0;
 
-        // 오늘 방문자 (간단 버전)
+        // 오늘 방문자 (새로고침 방지 버전)
         let todayKey = new Date().toISOString().slice(0, 10);
-        let todayCount = localStorage.getItem("today_" + todayKey);
+        let visited = localStorage.getItem("visited_" + todayKey);
 
-        if (!todayCount) {
-            todayCount = 1;
+        if (!visited) {
+            localStorage.setItem("visited_" + todayKey, "true");
+            document.getElementById("gc-today").innerText = 1;
         } else {
-            todayCount = parseInt(todayCount) + 1;
+            document.getElementById("gc-today").innerText = 1;
         }
 
-        localStorage.setItem("today_" + todayKey, todayCount);
-        document.getElementById("gc-today").innerText = todayCount;
-
     } catch (e) {
+        console.error(e);
         document.getElementById("gc-total").innerText = "ERR";
-        document.getElementById("gc-today").innerText = "ERR";
     }
 }
 

@@ -72,7 +72,40 @@
         .status-탑승곧마감 { color: #f1c40f; font-weight: bold; animation: blink 1s infinite; border: 1px solid rgba(241, 196, 15, 0.3); }
         
         @keyframes blink { 50% { opacity: 0.2; } }
-        @media (max-width: 600px) { h1 { font-size: 1.8rem; } td, th { font-size: 0.9rem; padding: 12px 5px; } .filter-btn { width: 140px; height: 70px; } }
+        /* 기존 한 줄을 지우고 아래 내용을 넣으세요 */
+        @media (max-width: 600px) {
+            body { padding: 10px; } 
+            
+            header { margin-bottom: 15px; padding-top: 5px; }
+            .logo-title { gap: 8px; }
+            .logo-icon { font-size: 1.8rem; }
+            h1 { font-size: 1.5rem; letter-spacing: 1px; } 
+            
+            .update-info { font-size: 0.8rem; }
+            .time-notice { font-size: 0.85rem; margin-bottom: 10px; }
+
+            .info-box { padding: 12px; margin-bottom: 15px; font-size: 0.8rem; }
+            .info-content { line-height: 1.4; gap: 5px; }
+            .info-box b { color: #ffcc00; } 
+            
+            .group-label { margin-bottom: 5px; font-size: 0.7rem; }
+            .selector-group { gap: 5px; margin-bottom: 15px; }
+            button { padding: 8px 12px; font-size: 0.85rem; border-radius: 4px; }
+
+            .filter-group { gap: 10px; margin-bottom: 20px; }
+            .filter-btn { width: 140px; height: 65px; border-radius: 8px; }
+            .filter-btn .icon { font-size: 1.4rem; margin-bottom: 2px; }
+            .filter-btn b { font-size: 0.9rem; }
+
+            th, td { font-size: 0.85rem; padding: 10px 5px; }
+            th:nth-child(1), td:nth-child(1) { width: 15%; }
+            th:nth-child(2), td:nth-child(2) { width: 18%; }
+            th:nth-child(3), td:nth-child(3) { width: 22%; font-size: 0.9rem; }
+            th:nth-child(4), td:nth-child(4) { width: 20%; }
+            th:nth-child(5), td:nth-child(5) { width: 25%; }
+            
+            .status-cell { min-width: 60px; padding: 3px 5px; font-size: 0.75rem; }
+        }
     </style>
 </head>
 <body>
